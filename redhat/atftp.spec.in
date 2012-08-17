@@ -33,7 +33,7 @@ files using the TFTP protocol.
 
 
 %build
-%configure
+%configure --enable-generated-files
 make
 
 

@@ -46,6 +46,13 @@ AC_ARG_ENABLE(libpcre,
 		no) libpcre=false ;;
 	  esac], [libpcre=true])
 
+AC_ARG_ENABLE(generated_content,
+        [  --enable-generated-content enable support for generated content in the server],
+	[ case "${enableval}" in
+		yes) generated_content=true ;;
+		no) generated_content=false ;;
+	  esac], [generated_content=false])
+
 AC_ARG_ENABLE(mtftp,
 	[  --enable-mtftp          enable mtftp support in server],
 	[ case "${enableval}" in
@@ -170,6 +177,10 @@ if test x$libpcre = xtrue; then
 		[AC_DEFINE([HAVE_PCRE], 1,
 		"Support for libpcre pattern subsitution")])
    AC_SUBST(LIBPCRE)
+fi
+if test x$generated_content = xtrue; then
+	AC_DEFINE([HAVE_GENERATED_CONTENT], 1,
+                   Support for generated content)
 fi
 
 dnl Checks for header files.

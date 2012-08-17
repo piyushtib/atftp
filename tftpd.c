@@ -115,6 +115,10 @@ tftpd_pcre_self_t *pcre_top = NULL;
 char *pcre_file;
 #endif
 
+#ifdef HAVE_GENERATED_CONTENT
+char *content_generator = NULL;
+#endif
+
 #ifdef HAVE_MTFTP
 /* mtftp options */
 struct mtftp_data *mtftp_data = NULL;
@@ -903,6 +907,9 @@ int tftpd_cmd_line_options(int argc, char **argv)
           { "pcre", 1, NULL, OPT_PCRE },
           { "pcre-test", 1, NULL, OPT_PCRE_TEST },
 #endif
+#ifdef HAVE_GENERATED_CONTENT
+          { "content-generator", 1, NULL, 'g' },
+#endif
 #ifdef HAVE_MTFTP
           { "mtftp", 1, NULL, OPT_MTFTP },
           { "mtftp-port", 1, NULL, OPT_MTFTP_PORT },
@@ -1038,6 +1045,15 @@ int tftpd_cmd_line_options(int argc, char **argv)
                          printf("Substitution: \"%s\" -> \"%s\"\n", string, out);
                }
 #endif
+#ifdef HAVE_GENERATED_CONTENT
+          case 'g':
+               content_generator = strdup(optarg);
+               if(access(content_generator, X_OK)) {
+                   fprintf(stderr, "Cannot use %s as content generator: %s\n", content_generator, strerror(errno));
+                   content_generator = NULL;
+               }
+               break;
+#endif
           case OPT_PORT_CHECK:
                source_port_checking = 0;
                break;
@@ -1130,6 +1146,10 @@ void tftpd_log_options(void)
      if (pcre_top)
           logger(LOG_INFO, "  PCRE: using file: %s", pcre_file);
 #endif
+#ifdef HAVE_GENERATED_CONTENT
+     if(content_generator)
+        logger(LOG_INFO, "  content generator: %s", content_generator);
+#endif
 #ifdef HAVE_MTFTP
      if (strcmp(mtftp_file, "") != 0)
      {
@@ -1219,6 +1239,9 @@ void tftpd_usage(void)
 #ifdef HAVE_PCRE
             "  --pcre <file>              : use this file for pattern replacement\n"
             "  --pcre-test <file>         : just test pattern file, not starting server\n"
+#endif
+#ifdef HAVE_GENERATED_CONTENT
+            "  --content-generator <path>         : use <path> to generate content\n"
 #endif
 #ifdef HAVE_MTFTP
             "  --mtftp <file>             : mtftp configuration file\n"
