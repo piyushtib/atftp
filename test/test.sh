@@ -98,6 +98,15 @@ function check_file() {
     fi
 }
 
+function check_content_generator_available() {
+	"$ATFTPD" --help | grep content-generator >/dev/null 2>&1
+	if [ $? -eq 0 ]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
 function test_get_put() {
     local READFILE="$1"
     shift
@@ -160,7 +169,26 @@ dd if=/dev/urandom of=$DIRECTORY/$READ_128K bs=1K count=128 2>/dev/null
 dd if=/dev/urandom of=$DIRECTORY/$READ_1M bs=1M count=1 2>/dev/null
 echo "done"
 
+if check_content_generator_available; then
+	echo "Feature content-generator available, additional testing will be done"
+	SERVER_ARGS="$SERVER_ARGS --content-generator ./content-generator.sh"
+else
+	echo "Feature content-generator not available"
+fi
+
 start_server
+
+if check_content_generator_available; then
+	echo -n "Test content-generator: "
+	$ATFTP --get --remote-file generate-a-file.txt $HOST $PORT
+	md5sum -c generate-a-file.txt.md5sum >/dev/null 2>&1
+	if [ $? -eq 0 ]; then
+		echo "OK"
+	else
+		echo "ERROR"
+		ERROR=1
+	fi
+fi
 
 #
 # test get and put
@@ -452,24 +480,24 @@ stop_server
 echo
 # cleanup
 if [ "$1" == "--nocleanup" ]; then  
-    echo "No Cleanup, keep files from test in $DIRECTORY"
+	echo "No Cleanup, keep files from test in $DIRECTORY"
 else
-    echo "Cleanup test files"
-    rm -f out
-    rm -f $SERVER_LOG $DIRECTORY/$READ_0 $DIRECTORY/$READ_511 $DIRECTORY/$READ_512
-    rm -f $DIRECTORY/$READ_2K $DIRECTORY/$READ_BIG $DIRECTORY/$READ_128K $DIRECTORY/$READ_1M
-    rm -f $DIRECTORY/$WRITE
-    rmdir $DIRECTORY
+	echo "Cleanup test files"
+	rm -f out generate-a-file.txt
+	rm -f $SERVER_LOG $DIRECTORY/$READ_0 $DIRECTORY/$READ_511 $DIRECTORY/$READ_512
+	rm -f $DIRECTORY/$READ_2K $DIRECTORY/$READ_BIG $DIRECTORY/$READ_128K $DIRECTORY/$READ_1M
+	rm -f $DIRECTORY/$WRITE
+	rmdir $DIRECTORY
 fi
 
 echo -n "Overall Test status: "
 # Exit with proper error status
 if [ $ERROR -eq 1 ]; then
-    echo "Errors have occurred"
-    exit 1
+	echo "Errors have occurred"
+	exit 1
 else
-    echo "OK"
-    exit 0
+	echo "OK"
+	exit 0
 fi
 
 # vim: ts=4:sw=4:autoindent

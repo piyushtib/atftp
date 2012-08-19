@@ -30,10 +30,27 @@ atftpd. Here is how to use it:
 Dennis Kaarsemaker
 <dennis@kaarsemaker.net>
 
+Some more notes and hints about this feature
+
+* you can look into test/content-generator.sh for a sample shell script used
+  as content generator
+* when you write a contend generator program then think if the programm should
+  act on every requested filename or only for some specific filenames or a
+  pattern of filenames. 
+  If all filenames are handled then your tftp server will serve any requested
+  file and will never have "file not found" - this may have strange results
+  e.g. for pxelinux bootloader who tries to download several files on his 
+  startup (and stops after the first file found and uses it as his boot
+  configuration)
+* the content generator programm will receive the full path for the requested 
+  filename, that means that you may need to strip off the atftpd server 
+  directory
+
 -------------------------------------------------------------------------------
 Example application for use case #2: Grabbing a list of mac addresses from a
 database. The database is maintained using the django framework.
 
+-------- 8<  8<  8<  cut here  8<  8<  8< -------------------------------------
 #!/usr/bin/python
 
 import os
@@ -59,3 +76,4 @@ fd.write("""#!/bin/sh
 wl mac none
 wl mac %s 00:00:00:00:00:00
 """ % ' '.join([x.mac for x in Interface.objects.filter(wireless=True)]))
+-------- 8<  8<  8<  cut here  8<  8<  8< -------------------------------------
