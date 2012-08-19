@@ -1241,7 +1241,7 @@ void tftpd_usage(void)
             "  --pcre-test <file>         : just test pattern file, not starting server\n"
 #endif
 #ifdef HAVE_GENERATED_CONTENT
-            "  --content-generator <path>         : use <path> to generate content\n"
+            "  --content-generator <path> : use <path> to generate content\n"
 #endif
 #ifdef HAVE_MTFTP
             "  --mtftp <file>             : mtftp configuration file\n"

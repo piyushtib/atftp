@@ -20,7 +20,7 @@ atftpd. Here is how to use it:
   The application must ignore unknown arguments, more arguments might be added
   later.
 * Your application is now responsible for writing the content that atftpd
-  should send to the given fd (6 in the example). If the content needs to
+  should send to the given fd (3 in the example). If the content needs to
   be stored, your application also must do so itself.
 * If your application exists with a non-zero exitstatus or writes zero bytes,
   atftpd will treat that as "file not found". If data is written and your
