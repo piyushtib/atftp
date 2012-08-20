@@ -322,7 +322,12 @@ int main(int argc, char **argv)
                     exit(1);
                }
                /* to be able to remove it later */
-               chown(pidfile, user->pw_uid, group->gr_gid);
+               if (chown(pidfile, user->pw_uid, group->gr_gid) != OK) {
+	            logger(LOG_ERR,
+		           "atftpd: failed to chown our pid file %s to owner %s.%s.",
+                           pidfile, user_name, group_name);
+                    exit(1);
+	       }
           }
 
           setgid(group->gr_gid);
@@ -989,7 +994,7 @@ int tftpd_cmd_line_options(int argc, char **argv)
                     Strncpy(user_name, tmp, MAXLEN);
                tmp = strtok(NULL, "");
                if (tmp != NULL)
-                    Strncpy(group_name, optarg, MAXLEN);
+                    Strncpy(group_name, tmp, MAXLEN);
                break;
           case 'G':
                Strncpy(group_name, optarg, MAXLEN);
